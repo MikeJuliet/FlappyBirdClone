@@ -30,7 +30,7 @@ class GameView(context : Context) : View(context) {
     //Black ball
     private var blackBallX = 0
     private var blackBallY = 0
-    private val blaclBallSpeed = 20
+    private val blackBallSpeed = 20
     private val blackBallPaint = Paint()
 
     //Background
@@ -38,7 +38,7 @@ class GameView(context : Context) : View(context) {
 
     //Score
     private var scorePaint = Paint()
-    private var score : Int = 0
+    private var score : Int
 
     //Level
     private var levelPaint = Paint()
@@ -121,7 +121,7 @@ class GameView(context : Context) : View(context) {
         canvas?.drawCircle(blueBallX.toFloat(), blueBallY.toFloat(), 10F, blueBallPaint)
 
         //Black ball
-        blackBallX -= blaclBallSpeed
+        blackBallX -= blackBallSpeed
         if (hitCheck(blackBallX, blackBallY)) {
             blackBallX = -100
             lifeCount!! - 1
