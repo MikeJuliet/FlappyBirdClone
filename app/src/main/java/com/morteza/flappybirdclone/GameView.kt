@@ -45,7 +45,7 @@ class GameView(context : Context) : View(context) {
 
     //Life
     private var life : ArrayList<Bitmap> = ArrayList(2)
-    private var lifeCount : Int? = null
+    private var lifeCount : Int
 
     //Status check
     private var touchFlag : Boolean = false
@@ -124,7 +124,7 @@ class GameView(context : Context) : View(context) {
         blackBallX -= blackBallSpeed
         if (hitCheck(blackBallX, blackBallY)) {
             blackBallX = -100
-            lifeCount!! - 1
+            lifeCount--
             if (lifeCount == 0) {
                 //Game Over
                 Log.e("MESSAGE", "GAME OVER")
@@ -143,13 +143,13 @@ class GameView(context : Context) : View(context) {
         canvas?.drawText("Lv.1", (width / 2).toFloat(), 60F, levelPaint)
 
         //Life
-        for (i in 0..3) {
-            val x : Int = (560 + life[0].width + 1.5 * i).toInt()
-            val y : Int = 30
+        for (i in 0..2) {
+            val x : Int = ((canvasWidth - 250) + life[0].width * 1.2 * i).toInt()
+            val y = 30
 
-            if (i < lifeCount!!) {
+            if (i < lifeCount) {
                 canvas?.drawBitmap(life[0], x.toFloat(), y.toFloat(), null)
-            }else{
+            } else {
                 canvas?.drawBitmap(life[1], x.toFloat(), y.toFloat(), null)
             }
         }
@@ -171,5 +171,9 @@ class GameView(context : Context) : View(context) {
             birdSpeed = -20
         }
         return true
+    }
+
+    override fun performClick() : Boolean {
+        return super.performClick()
     }
 }
