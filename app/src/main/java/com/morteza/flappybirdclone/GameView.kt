@@ -2,6 +2,7 @@ package com.morteza.flappybirdclone
 
 import android.content.*
 import android.graphics.*
+import android.util.*
 import android.view.*
 
 /**
@@ -20,17 +21,31 @@ class GameView(context : Context) : View(context) {
     private var birdY = 0
     private var birdSpeed = 0
 
+    //Blue ball
+    private var blueBallX = 0
+    private var blueBallY = 0
+    private val blueBallSpeed = 15
+    private val blueBallPaint = Paint()
+
+    //Black ball
+    private var blackBallX = 0
+    private var blackBallY = 0
+    private val blaclBallSpeed = 20
+    private val blackBallPaint = Paint()
+
     //Background
     private var backgroundImage : Bitmap? = null
 
     //Score
     private var scorePaint = Paint()
+    private var score : Int = 0
 
     //Level
     private var levelPaint = Paint()
 
     //Life
     private var life : ArrayList<Bitmap> = ArrayList(2)
+    private var lifeCount : Int? = null
 
     //Status check
     private var touchFlag : Boolean = false
@@ -40,6 +55,12 @@ class GameView(context : Context) : View(context) {
         bird.add(BitmapFactory.decodeResource(resources, R.drawable.bird2))
 
         backgroundImage = BitmapFactory.decodeResource(resources, R.drawable.bg)
+
+        blueBallPaint.color = Color.BLUE
+        blueBallPaint.isAntiAlias = false
+
+        blueBallPaint.color = Color.BLACK
+        blueBallPaint.isAntiAlias = false
 
         scorePaint.color = Color.BLACK
         scorePaint.textSize = 32F
@@ -57,6 +78,8 @@ class GameView(context : Context) : View(context) {
 
         // Bird first position
         birdY = 500
+        score = 0
+        lifeCount = 3
     }
 
     override fun onDraw(canvas : Canvas?) {
@@ -65,6 +88,7 @@ class GameView(context : Context) : View(context) {
         canvasWidth = width
         canvasHeight = height
 
+        backgroundImage = Bitmap.createScaledBitmap(backgroundImage!!, width, height, false)
         canvas?.drawBitmap(backgroundImage!!, 0F, 0F, null)
 
         //  Bird
@@ -76,25 +100,73 @@ class GameView(context : Context) : View(context) {
         if (birdY > maxBirdY) birdY = maxBirdY
         birdSpeed += 2
 
-        if (touchFlag){
+        if (touchFlag) {
             //  Flap wings
             canvas?.drawBitmap(bird[1], birdX.toFloat(), birdY.toFloat(), null)
             touchFlag = false
-        }else{
+        } else {
             canvas?.drawBitmap(bird[0], birdX.toFloat(), birdY.toFloat(), null)
         }
 
-        canvas?.drawText("Score : 0", 20F, 60F, scorePaint)
+        //Blue ball
+        blueBallX -= blueBallSpeed
+        if (hitCheck(blueBallX, blueBallY)) {
+            score += 10
+            blueBallX = -100
+        }
+        if (blueBallX < 0) {
+            blueBallX = canvasWidth + 20
+            blueBallY = (Math.floor(Math.random() * (maxBirdY - minBirdY)) + minBirdY).toInt()
+        }
+        canvas?.drawCircle(blueBallX.toFloat(), blueBallY.toFloat(), 10F, blueBallPaint)
 
+        //Black ball
+        blackBallX -= blaclBallSpeed
+        if (hitCheck(blackBallX, blackBallY)) {
+            blackBallX = -100
+            lifeCount!! - 1
+            if (lifeCount == 0) {
+                //Game Over
+                Log.e("MESSAGE", "GAME OVER")
+            }
+        }
+        if (blackBallX < 0) {
+            blackBallX = canvasWidth + 200
+            blackBallY = (Math.floor(Math.random() * (maxBirdY - minBirdY)) + minBirdY).toInt()
+        }
+        canvas?.drawCircle(blackBallX.toFloat(), blackBallY.toFloat(), 20F, blackBallPaint)
+
+        //Score
+        canvas?.drawText("Score : $score", 20F, 60F, scorePaint)
+
+        //Level
         canvas?.drawText("Lv.1", (width / 2).toFloat(), 60F, levelPaint)
 
-        canvas?.drawBitmap(life[0], 790F, 30F, null)
-        canvas?.drawBitmap(life[0], 880F, 30F, null)
-        canvas?.drawBitmap(life[1], 970F, 30F, null)
+        //Life
+        for (i in 0..3) {
+            val x : Int = (560 + life[0].width + 1.5 * i).toInt()
+            val y : Int = 30
+
+            if (i < lifeCount!!) {
+                canvas?.drawBitmap(life[0], x.toFloat(), y.toFloat(), null)
+            }else{
+                canvas?.drawBitmap(life[1], x.toFloat(), y.toFloat(), null)
+            }
+        }
+//        canvas?.drawBitmap(life[0], 790F, 30F, null)
+//        canvas?.drawBitmap(life[0], 880F, 30F, null)
+//        canvas?.drawBitmap(life[1], 970F, 30F, null)
+    }
+
+    fun hitCheck(x : Int, y : Int) : Boolean {
+        if (birdX < x && x < (birdX + bird[0].width) && birdY < y && y < (birdY + bird[0].height)) {
+            return true
+        }
+        return false
     }
 
     override fun onTouchEvent(event : MotionEvent?) : Boolean {
-        if (event?.action == MotionEvent.ACTION_DOWN){
+        if (event?.action == MotionEvent.ACTION_DOWN) {
             touchFlag = true
             birdSpeed = -20
         }

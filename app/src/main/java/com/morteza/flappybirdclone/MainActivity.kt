@@ -14,7 +14,6 @@ class MainActivity : AppCompatActivity() {
     private var handler : Handler = Handler()
 
     companion object {
-
         private const val TIMER_INTERVAL : Long = 30
     }
 
